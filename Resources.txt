@@ -1,0 +1,3 @@
+Deep learning and CV
+
+https://d2l.ai/chapter_preface/index.html
