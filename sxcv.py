@@ -330,7 +330,6 @@ def create_mask (name):
     # ASIDE: One of the reasons for having this routine is to show how an
     # exception in a test is handled -- the last case above does it and the
     # exception is triggered in the trailing else case below.
-
     if name == "blur3":
         im = numpy.array ([
             [1, 1, 1],
@@ -353,14 +352,19 @@ def create_mask (name):
             [1, -1, 1],
             [1,  1, 1]
         ], dtype="int")
-
+    elif name == 'sobel':
+        im = 1/8 * numpy.array([[-1, 0, 1],[-2,0,2],[-1,0,1]])
+    elif name == 'sobel_x':
+        pass
+    elif name ==  'sobel_y':
+        pass
     else:
         # We have a problem.
         raise ValueError ("I don't know how to generate a '%s' mask!" % name)
 
     # Return the mask we have created.
     return im
-
+	
 #-------------------------------------------------------------------------------
 def describe (im, title="Image"):
     """
@@ -608,6 +612,187 @@ def version ():
 #-------------------------------------------------------------------------------
 # LIBRARY ROUTINES.
 #-------------------------------------------------------------------------------
+def mean (im):
+    """
+    Return the mean of the pixel values an image.
+
+    Args:
+        im (image): image for which the mean value is to be found
+
+    Returns:
+        ave (float): the mean of the image
+
+    Tests:
+        >>> ave = mean (arrowhead ())
+        >>> print ("OK") if abs (ave - 39.66666666) < 1.0e-5 else print ("bad")
+        OK
+    """
+    return numpy.mean(im)
+def highest (im):
+    """
+    Return the maximum of the pixel values of an image.
+
+    Args:
+        im (image): image for which the maximum value is to be found
+
+    Returns:
+        hi (of same type as image): highest value in the image
+
+    Tests:
+        >>> im = testimage ()
+        >>> print (highest (im))
+        15
+    """
+    return numpy.max(im)
+
+def lowest (im):
+    """
+    Return the minimum of the pixel values of an image.
+
+    Args:
+        im (image): image for which the maximum value is to be found
+    
+    Returns:
+        lo (of same type as image): lowest value in the image
+
+    Tests:
+        >>> im = testimage ()
+        >>> print (lowest (im))
+        10
+    """
+    return numpy.min(im)
+    
+def extremes (im):
+    """
+    Return the minimum and maximum of the pixel values of an image.
+
+    Args:
+        im (image): image for which the maximum value is to be found
+    
+    Returns:
+        lo (of same type as image): lowest value in the image
+        hi (of same type as image): highest value in the image
+
+    Tests:
+        >>> im = testimage ()
+        >>> print (extremes (im))
+        [10, 15]
+    """
+    return [lowest(im),highest(im)]
+    
+def linear_operation(im, a, b):
+    """
+    apply linear operation to the image
+
+    Args:
+        im (image): image to be modified
+        a (int): a is multiplicative modifier changes contrast
+        b (int): b is additive modifier it changes brightness
+
+    Returns:
+        str: the description to be printed
+
+    Raises:
+        ValueError: when invoked with an invalid image
+
+    Tests:
+        >>> im = arrowhead ()
+        >>> print (describe (im, "This image"))
+        This image is monochrome of size 10 rows x 9 columns with uint8 pixels.
+    """
+    return a*im+b
+
+
+def linear_blend(im,im2,a):
+    return (1-a)*im + a*im2
+
+def histogram (im):
+    """
+    Return a histogram (frequency for each grey level) of the image `im`.
+    The maximum pixel value is determined from the image this is use to
+    determine the number of grey levels in the plot.
+
+    The first value returned is an array of the grey levels.
+    For a monochrome image, the second value returned is a single-index
+    array containing the counts for each grey level; but for a colour
+    image, it is a two-index array, with the first index selecting the
+    channel (colour band) and the second the counts for that band's
+    pixel values.
+
+    Args:
+        im (image): image for which the histogram is to be produced
+
+    Returns:
+        x (int): grey-level values for the abscissa (x) axis
+        y (int): frequency counts for the ordinate (y) axis
+
+    Tests:
+        >>> im = testimage ()
+        >>> x, y = histogram (im)
+        >>> print (x)
+        [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]
+        >>> print (y)
+        [ 0  0  0  0  0  0  0  0  0  0 80 13 13  3 13  8]
+
+    """
+    levels = highest(im) + 1
+    vals = numpy.array(range(levels), dtype=int)
+    if len (im.shape) == 2:
+        # It's a monochrome image, so we have only one histogram.
+        ny, nx = im.shape
+        hist = numpy.zeros (levels, dtype=int)
+        for y in range (0, ny):
+            for x in range (0, nx):
+                v = im[y,x]
+                hist[v] += 1
+    else:
+        # It's a multi-channel image, so we have a separate histogram for
+        # each of its channels.
+        ny, nx, nc = im.shape
+        hist = numpy.zeros ((nc,levels), dtype=int)
+        for c in range(0, nc):
+            for y in range (0, ny):
+                for x in range (0, nx):
+                    v = im[y,x,c]
+                    hist[c,v] += 1
+    return vals, hist
+
+def binarize (im, threshold, below=0, above=255):
+    """Threshold image `im` at value `thresh`, setting pixels with value
+    below `thresh` to `below` and those with larger values to `above`.
+    The resulting image is returned.
+    
+    Args:
+        im (image): image to be thresholded and binarized
+        thresh (float): threshold value
+        below (float): value to which pixels lower than `thresh` are set
+        above (float): value to which pixels greater than `thresh` are set
+    Returns:
+        bim (image): binarized image
+
+    Tests:
+        >>> im = testimage ()
+        >>> bim = binarize (im, 12, 7, 25)
+        >>> print (bim)
+        [[ 7  7  7  7  7  7  7  7  7  7]
+         [ 7  7  7  7  7  7  7  7  7  7]
+         [ 7  7 25 25  7  7  7  7 25  7]
+         [ 7  7 25 25  7  7  7  7  7  7]
+         [ 7  7 25 25  7  7  7  7  7  7]
+         [ 7  7  7  7 25 25  7  7  7  7]
+         [ 7  7  7  7 25 25  7 25  7  7]
+         [ 7  7  7  7  7 25  7 25 25  7]
+         [ 7 25 25  7  7  7  7 25  7  7]
+         [ 7 25 25  7  7  7 25 25  7  7]
+         [ 7 25 25  7  7  7  7  7  7  7]
+         [ 7  7  7  7  7  7  7  7  7  7]
+         [ 7  7  7  7  7  7  7  7  7  7]]
+    """
+    out = im.copy()
+    out[im > threshold] = above
+    out[im <= threshold] = below
+    return out
+
 def hsv_to_cv2 (h, s, v):
     """Convert HSV values to the representation used in OpenCV, returning the
     result as a tuple for use in cv2.inRange.
@@ -623,15 +808,15 @@ def hsv_to_cv2 (h, s, v):
     Tests:
         >>> hsv_to_cv2 (360, 100, 100)
         (180, 255, 255)
-    """
+    """   
+    return (h//2,s*2.55,v*2.55)
+def convolution(im,k,padding=None):
+    if padding:
+        im = image_padding(padding)
+    size = im.shape
 
-    return (h // 2, 2.55 * s, 2.55 * v)
+    return None     
     
-def binarize (im, treshold, below = 0, above = 255):
-    out = im.copy()
-    out[im > treshold] =above
-    out[im <= treshold] = below
-    return out
 #-------------------------------------------------------------------------------
 # EPILOGUE.
 #-------------------------------------------------------------------------------
