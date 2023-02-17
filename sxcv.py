@@ -330,36 +330,66 @@ def create_mask (name):
     # ASIDE: One of the reasons for having this routine is to show how an
     # exception in a test is handled -- the last case above does it and the
     # exception is triggered in the trailing else case below.
-    if name == "blur3":
-        im = numpy.array ([
+    mask_dict = {
+        "blur3": 1/9*numpy.array ([
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1]
-        ], dtype="int")
-
-    elif name == "blur5":
-        im = numpy.array ([
+        ], dtype="int"),
+        "blur5": 1/25*numpy.array ([
             [1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1]
-        ], dtype="int")
+        ], dtype="int"),
+        "gaussian3": 1/16*numpy.array ([
+            [1, 2, 1],
+            [2, 4, 2],
+            [1, 2, 1]
+        ], dtype="int"),
+        "gaussian5": 1/256*numpy.array ([
+            [1, 4, 6, 4, 1],
+            [4, 16, 24, 16, 4],
+            [6, 24, 36, 24, 6],
+            [4, 16, 24, 16, 4],
+            [1, 4, 6, 4, 1]
+        ], dtype="int"),     
+        "laplacian": 1/4 * numpy.array ([
+            [1,  2, 1],
+            [2, -12, 2],
+            [1,  2, 1]
+        ], dtype="int"),
+        'sobel': 1/8 * numpy.array([
+            [-1, 0, 1],
+            [-2,0,2],
+            [-1,0,1]
+        ], dtype='int'),
+        'sobelx': 1/8 * numpy.array([
+            [1, 0,-1],
+            [2,0,-2],
+            [1,0,-1]
+        ], dtype='int'),
+        'sobely': 1/8 * numpy.array([
+            [1,2,1],
+            [0,0,0],
+            [-1,-2,-1]
+        ], dtype='int'),   
+        'identity': 1/8*numpy.array ([
+            [1, 1, 1],
+            [1, 0, 1],
+            [1, 1, 1]
+        ], dtype="int"),
+        'sharpen': numpy.array ([
+            [0, -1, 0],
+            [-1, 5, -1],
+            [0, -1, 0]
+        ], dtype="int"),        
+    
+    }
+    im = mask_dict.get(name,0)
 
-    elif name == "laplacian":
-        im = numpy.array ([
-            [1,  1, 1],
-            [1, -1, 1],
-            [1,  1, 1]
-        ], dtype="int")
-    elif name == 'sobel':
-        im = 1/8 * numpy.array([[-1, 0, 1],[-2,0,2],[-1,0,1]])
-    elif name == 'sobel_x':
-        pass
-    elif name ==  'sobel_y':
-        pass
-    else:
-        # We have a problem.
+    if type(im) == int:
         raise ValueError ("I don't know how to generate a '%s' mask!" % name)
 
     # Return the mask we have created.
