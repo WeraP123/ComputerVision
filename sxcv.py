@@ -821,6 +821,8 @@ def binarize (im, threshold, below=0, above=255):
     out = im.copy()
     out[im > threshold] = above
     out[im <= threshold] = below
+
+    
     return out
 
 def hsv_to_cv2 (h, s, v):
@@ -841,7 +843,64 @@ def hsv_to_cv2 (h, s, v):
     """   
     return (h//2,s*2.55,v*2.55)
 
+def largest_contour (contours):
+    """Return the largest by area of a set of external contours found by
+    OpenCV routine cv2.findContours.
 
+    Args:
+        contours (list): list of contours return by cv2.findContours
+
+    Returns:
+        contour (contour): a single contour
+
+    Tests:
+        >>> im = arrowhead ()
+        >>> im[1,1] = 255
+        >>> c, junk = cv2.findContours (im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        >>> lc = largest_contour (c)
+        >>> print (cv2.contourArea (lc))
+        5.0
+    """
+    for
+    return None
+
+def circularity (c):
+    """Return the circularity of the contour `c`, returned from the
+    OpenCV routine cv2.findContours.
+
+    Args:
+        c (contour): contours returned by cv2.findContours
+
+    Returns:
+        circ (float): the circularity of contour c
+
+    Tests:
+        >>> im = arrowhead ()
+        >>> c, junk = cv2.findContours (im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        >>> lc = largest_contour (c)
+        >>> print ("%.4f" % circularity (lc))
+        68.3411
+    """
+    return None
+
+def rectangularity (c):
+    """Return the rectangularity of the contour `c`, returned from the
+    OpenCV routine cv2.findContours.
+
+    Args:
+        c (contour): contours returned by cv2.findContours
+
+    Returns:
+        rec (float): the rectangularity of contour c
+
+    Tests:
+        >>> im = arrowhead ()
+        >>> c, junk = cv2.findContours (im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        >>> lc = largest_contour (c)
+        >>> print ("%.4f" % rectangularity (lc))
+        4.8276
+    """
+    return None
 def convolution(im,k,padding=None):
     if padding:
         im = image_padding(padding)
