@@ -767,7 +767,7 @@ def histogram (im):
     """
     levels = highest(im) + 1
     vals = numpy.array(range(levels), dtype=int)
-    if len (im.shape) == 2:
+    if len (im.shape) == 2: 
         # It's a monochrome image, so we have only one histogram.
         ny, nx = im.shape
         hist = numpy.zeros (levels, dtype=int)
@@ -840,6 +840,8 @@ def hsv_to_cv2 (h, s, v):
         (180, 255, 255)
     """   
     return (h//2,s*2.55,v*2.55)
+
+
 def convolution(im,k,padding=None):
     if padding:
         im = image_padding(padding)

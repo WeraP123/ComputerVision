@@ -1,0 +1,20 @@
+import sxcv
+import cv2
+import numpy
+im = cv2.imread('Images/map.jpg')
+hsv_im = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+v, h = sxcv.histogram(im)
+sxcv.plot_histogram(v,h,'hsv')
+lo_green = sxcv.hsv_to_cv2( 80,  50,  50)
+hi_green = sxcv.hsv_to_cv2(140, 255, 255)
+mask = cv2.inRange(hsv_im, lo_green, hi_green)
+lo_red = sxcv.hsv_to_cv2(0,40,40)
+hi_red = sxcv.hsv_to_cv2(24,255,255)
+mask1 = cv2.inRange(hsv_im, lo_red, hi_red)
+lo_red = sxcv.hsv_to_cv2(343,40,40)
+hi_red = sxcv.hsv_to_cv2(360,255,255)
+mask2 = cv2.inRange(hsv_im, lo_red, hi_red)
+lo_blue = sxcv.hsv_to_cv2(180,30,12)
+hi_blue = sxcv.hsv_to_cv2(250,255,255)
+mask3 = cv2.inRange(hsv_im, lo_blue, hi_blue)
+sxcv.display(numpy.hstack([numpy.dstack([cv2.bitwise_not(mask+mask1+mask2+mask3)]*3),im]))
